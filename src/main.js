@@ -1,6 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 let mainWindow;
 const dataPath = path.join(app.getPath('userData'), 'creativenotes.json');
@@ -59,6 +60,7 @@ function createWindow() {
     titleBarStyle: 'hidden',
     backgroundColor: '#f3f2f1',
     title: 'CreativeNotes',
+    icon: path.join(__dirname, '..', 'logo.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -79,35 +81,61 @@ ipcMain.on('window:maximize', () => {
 });
 ipcMain.on('window:close', () => mainWindow?.close());
 
-ipcMain.handle('notebook:export-pdf', async (_event, notebook) => {
+ipcMain.handle('notebook:export-pdf', async (_event, notebook, pageImages = []) => {
   const printable = new BrowserWindow({
     show: false,
     webPreferences: { contextIsolation: true }
   });
 
-  const pages = (notebook.pages || []).map((page, index) => `
-    <section class="page">
-      <header>
-        <span>${escapeHtml(notebook.name)}</span>
-        <span>${index + 1} / ${notebook.pages.length}</span>
-      </header>
-      <h1>${escapeHtml(page.name || `Page ${index + 1}`)}</h1>
-      ${(page.texts || []).map((item) => `<p>${escapeHtml(item.value || '')}</p>`).join('')}
-    </section>
-  `).join('');
+  const tmpDir  = path.join(os.tmpdir(), `cn-export-${Date.now()}`);
+  fs.mkdirSync(tmpDir, { recursive: true });
+
+  // Write each page PNG to a temp file so file:// can load them without CSP issues
+  const imgPaths = pageImages.map((dataUrl, i) => {
+    if (!dataUrl) return '';
+    const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+    const imgFile = path.join(tmpDir, `page-${i}.png`);
+    fs.writeFileSync(imgFile, Buffer.from(base64, 'base64'));
+    return imgFile.replace(/\\/g, '/');
+  });
+
+  const pages = (notebook.pages || []).map((_page, index) => {
+    const src = imgPaths[index] ? `file:///${imgPaths[index]}` : '';
+    return `<section class="page">${src ? `<img src="${src}" class="page-img">` : ''}</section>`;
+  }).join('');
 
   const html = `<!doctype html><html><head><meta charset="UTF-8"><style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Georgia, serif; color: #222; }
-    .page { width: 8.27in; min-height: 11.69in; padding: .8in; page-break-after: always; }
-    header { display: flex; justify-content: space-between; color: #888; font: 12px sans-serif; margin-bottom: 24px; }
-    h1 { font: 700 22px sans-serif; margin: 0 0 28px; }
-    p { font-size: 16px; line-height: 1.6; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #fff; }
+    @page { size: A4; margin: 0; }
+    .page {
+      width: 210mm;
+      height: 297mm;
+      page-break-after: always;
+      overflow: hidden;
+      background: #fff;
+    }
+    .page-img {
+      display: block;
+      width: 210mm;
+      height: 297mm;
+    }
   </style></head><body>${pages}</body></html>`;
 
-  await printable.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
-  const pdf = await printable.webContents.printToPDF({ printBackground: true, pageSize: 'A4' });
+  const htmlFile = path.join(tmpDir, 'export.html');
+  fs.writeFileSync(htmlFile, html, 'utf8');
+  await printable.loadFile(htmlFile);
+
+  const pdf = await printable.webContents.printToPDF({
+    printBackground: true,
+    pageSize: 'A4',
+    preferCSSPageSize: true,
+    margins: { marginType: 'none' }
+  });
   printable.destroy();
+
+  // Clean up all temp files
+  fs.rm(tmpDir, { recursive: true, force: true }, () => {});
 
   const result = await dialog.showSaveDialog(mainWindow, {
     title: 'Export notebook as PDF',

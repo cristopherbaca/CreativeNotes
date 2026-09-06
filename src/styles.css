@@ -393,13 +393,52 @@ button { cursor: pointer; }
 }
 .pop-btn:hover, .pop-btn.active { background: var(--tool-active-bg); color: var(--tool-active-color); }
 
-/* Paper popover — row of cards */
+/* Paper popover — column: style row + bg color row */
 .paper-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  min-width: 280px;
+}
+.paper-popover-styles {
   display: flex;
   flex-direction: row;
   gap: 8px;
-  padding: 10px;
+  padding: 10px 10px 8px;
 }
+.paper-popover-bg {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 10px;
+  border-top: 1px solid var(--line);
+}
+.paper-bg-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  flex: none;
+}
+.paper-bg-swatches {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+.paper-bg-swatch {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex: none;
+  transition: transform 0.1s, border-color 0.1s;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+}
+.paper-bg-swatch:hover { transform: scale(1.15); }
+.paper-bg-swatch.active { border-color: var(--accent); }
+.paper-bg-hex-label { flex: none; width: 102px; }
 .paper-btn {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   border: 2px solid transparent; border-radius: 8px;
@@ -614,8 +653,9 @@ button { cursor: pointer; }
 .page-sheet canvas, .text-layer {
   position: absolute; inset: 0; width: 100%; height: 100%;
 }
-.page-sheet canvas { z-index: 2; touch-action: none; }
-.text-layer { z-index: 3; pointer-events: none; }
+.page-sheet .bg-canvas { z-index: 2; pointer-events: none; touch-action: none; }
+.page-sheet .fg-canvas { z-index: 3; touch-action: none; }
+.text-layer { z-index: 4; pointer-events: none; }
 .page-sheet.text-mode .text-layer { pointer-events: auto; }
 .page-sheet.text-mode canvas { pointer-events: none; }
 .text-box {

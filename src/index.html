@@ -118,22 +118,33 @@
               <svg class="chevron" width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3l2 2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div class="tool-popover paper-popover" id="paperPopover">
-              <button class="paper-btn active" data-paper="blank" title="Blank">
-                <div class="paper-preview blank"></div>
-                <span>Blank</span>
-              </button>
-              <button class="paper-btn" data-paper="lined" title="Lined">
-                <div class="paper-preview lined"></div>
-                <span>Lined</span>
-              </button>
-              <button class="paper-btn" data-paper="dotted" title="Dotted">
-                <div class="paper-preview dotted"></div>
-                <span>Dotted</span>
-              </button>
-              <button class="paper-btn" data-paper="grid" title="Grid">
-                <div class="paper-preview grid"></div>
-                <span>Grid</span>
-              </button>
+              <div class="paper-popover-styles">
+                <button class="paper-btn active" data-paper="blank" title="Blank">
+                  <div class="paper-preview blank"></div>
+                  <span>Blank</span>
+                </button>
+                <button class="paper-btn" data-paper="lined" title="Lined">
+                  <div class="paper-preview lined"></div>
+                  <span>Lined</span>
+                </button>
+                <button class="paper-btn" data-paper="dotted" title="Dotted">
+                  <div class="paper-preview dotted"></div>
+                  <span>Dotted</span>
+                </button>
+                <button class="paper-btn" data-paper="grid" title="Grid">
+                  <div class="paper-preview grid"></div>
+                  <span>Grid</span>
+                </button>
+              </div>
+              <div class="paper-popover-bg">
+                <span class="paper-bg-label">Page color</span>
+                <div class="paper-bg-swatches" id="pageBgSwatches"></div>
+                <label class="cp-hex-label paper-bg-hex-label">
+                  <span>#</span>
+                  <input id="pageBgHex" class="cp-hex" maxlength="6" placeholder="ffffff" spellcheck="false">
+                </label>
+                <span id="pageBgPreview" class="cp-hex-preview"></span>
+              </div>
             </div>
           </div>
 
