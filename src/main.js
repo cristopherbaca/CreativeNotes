@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 let mainWindow;
-const dataPath = path.join(app.getPath('userData'), 'mynotes.json');
+const dataPath = path.join(app.getPath('userData'), 'creativenotes.json');
 
 const COVER_COLORS = ['#c44536', '#d9763b', '#e0b145', '#4f8f62', '#3d7c8a', '#3f5f9a', '#6b4f8a', '#2f3136'];
 
@@ -58,7 +58,7 @@ function createWindow() {
     frame: false,
     titleBarStyle: 'hidden',
     backgroundColor: '#f3f2f1',
-    title: 'MyNotes',
+    title: 'CreativeNotes',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

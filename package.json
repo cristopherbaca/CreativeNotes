@@ -1,7 +1,7 @@
 {
-  "name": "mynotes",
+  "name": "creativenotes",
   "version": "1.0.0",
-  "description": "A Goodnotes-inspired desktop notebook app.",
+  "description": "A creative notebook app for sketching and notes.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",

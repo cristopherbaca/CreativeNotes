@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyNotes</title>
+  <title>CreativeNotes</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,29 +11,12 @@
   <div id="titleBar" class="title-bar">
     <div class="title-bar-drag">
       <span class="title-bar-logo">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="1" width="14" height="14" rx="3" fill="currentColor" opacity="0.15"/>
-          <rect x="3" y="4" width="6" height="1.2" rx="0.6" fill="currentColor"/>
-          <rect x="3" y="6.8" width="10" height="1.2" rx="0.6" fill="currentColor"/>
-          <rect x="3" y="9.6" width="8" height="1.2" rx="0.6" fill="currentColor"/>
-        </svg>
+        <img src="../logo.png" width="18" height="18" alt="CreativeNotes logo" class="title-bar-logo-img">
       </span>
-      <span class="title-bar-name">MyNotes</span>
+      <span class="title-bar-name">CreativeNotes</span>
     </div>
     <div class="title-bar-controls">
-      <button id="themeToggleBtn" class="wc-btn" title="Toggle theme" aria-label="Toggle theme">
-        <svg id="themeIcon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="3.2" fill="currentColor"/>
-          <line x1="7" y1="0.5" x2="7" y2="2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="7" y1="12" x2="7" y2="13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="0.5" y1="7" x2="2" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="12" y1="7" x2="13.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="2.4" y1="2.4" x2="3.4" y2="3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="10.6" y1="10.6" x2="11.6" y2="11.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="11.6" y1="2.4" x2="10.6" y2="3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="3.4" y1="10.6" x2="2.4" y2="11.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-      </button>
+      <button id="themeToggleBtn" class="wc-btn" title="Toggle theme" aria-label="Toggle theme"></button>
       <button id="wcMinimize" class="wc-btn" title="Minimize" aria-label="Minimize">
         <svg width="10" height="2" viewBox="0 0 10 2"><rect width="10" height="1.5" rx="0.75" fill="currentColor"/></svg>
       </button>
@@ -50,9 +33,10 @@
   </div>
 
   <div id="app">
+    <!-- ── LIBRARY ─────────────────────────────────── -->
     <section id="libraryView" class="library-view">
       <header class="app-bar">
-        <span class="app-bar-title">MyNotes</span>
+        <span class="app-bar-title">CreativeNotes</span>
         <input id="searchNotebooks" class="app-search" type="search" placeholder="Search notebooks…">
       </header>
       <div class="library-body">
@@ -61,13 +45,14 @@
       </div>
     </section>
 
+    <!-- ── NOTEBOOK EDITOR ────────────────────────── -->
     <section id="notebookView" class="notebook-view hidden">
       <header class="editor-header">
         <div class="editor-header-left">
           <button id="backToLibrary" class="ghost-button icon-button" title="Back to library">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button id="sidebarToggleBtn" class="ghost-button icon-button" title="Toggle sidebar">
+          <button id="sidebarToggleBtn" class="ghost-button icon-button" title="Toggle sidebar (\)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
               <line x1="5.5" y1="2.5" x2="5.5" y2="13.5" stroke="currentColor" stroke-width="1.5"/>
@@ -76,55 +61,109 @@
           <button id="notebookTitleBtn" class="notebook-title-btn"></button>
         </div>
 
+        <!-- ── TOOLBAR ──────────────────────────────────── -->
         <div class="toolbar" id="toolbar">
-          <!-- Draw tools -->
+
+          <!-- Drawing tools -->
           <button class="tool-btn active" data-tool="pen" title="Pen (P)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8.5 8.5L2 14l.5-3.5L11 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="highlighter" title="Highlighter (H)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="3" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><line x1="3" y1="11" x2="7" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           </button>
           <button class="tool-btn" data-tool="eraser" title="Eraser (E)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13h10M9 3l4 4-6 6-4-4 6-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
           </button>
-          <button class="tool-btn" data-tool="text" title="Text (T)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M8 4v9M6 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="select" title="Select (S)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2l2 9 2.5-2.5L10 12l1.5-1-2.5-3.5L12 5 3 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="line" title="Straight line (L)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="rect" title="Rectangle (R)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="4.5" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="circle" title="Circle (O)">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
-          </button>
-          <button class="tool-btn" data-tool="arrow" title="Arrow">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="3" y1="13" x2="13" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,3 13,3 13,9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </button>
+
+          <!-- Shapes picker -->
+          <div class="tool-group" id="shapesGroup">
+            <button class="tool-btn tool-group-trigger" id="shapesBtn" title="Shapes">
+              <svg id="shapeIcon" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="4.5" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+              <svg class="chevron" width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3l2 2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="tool-popover" id="shapesPopover">
+              <div class="popover-grid">
+                <button class="pop-btn" data-tool="line" title="Line (L)">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><line x1="4" y1="16" x2="16" y2="4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="rect" title="Rectangle (R)">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="roundrect" title="Rounded rect">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="4" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="circle" title="Ellipse (O)">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><ellipse cx="10" cy="10" rx="7" ry="5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="triangle" title="Triangle">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4l8 13H2L10 4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="diamond" title="Diamond">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l7 7-7 7-7-7 7-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="arrow" title="Arrow">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><line x1="4" y1="16" x2="16" y2="4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="9,4 16,4 16,11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="dbarrow" title="Double arrow">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><line x1="4" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="12,7 16,10 12,13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="8,7 4,10 8,13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+                <button class="pop-btn" data-tool="star" title="Star">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 5.2 5.6.8-4 4 .9 5.6L10 15l-4.9 2.6.9-5.6-4-4 5.6-.8L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page style picker -->
+          <div class="tool-group" id="paperGroup">
+            <button class="tool-btn tool-group-trigger" id="paperBtn" title="Page style">
+              <svg id="paperIcon" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><line x1="4" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1"/><line x1="4" y1="8.5" x2="12" y2="8.5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="11" x2="12" y2="11" stroke="currentColor" stroke-width="1"/></svg>
+              <svg class="chevron" width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 3l2 2 2-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="tool-popover paper-popover" id="paperPopover">
+              <button class="paper-btn active" data-paper="blank" title="Blank">
+                <div class="paper-preview blank"></div>
+                <span>Blank</span>
+              </button>
+              <button class="paper-btn" data-paper="lined" title="Lined">
+                <div class="paper-preview lined"></div>
+                <span>Lined</span>
+              </button>
+              <button class="paper-btn" data-paper="dotted" title="Dotted">
+                <div class="paper-preview dotted"></div>
+                <span>Dotted</span>
+              </button>
+              <button class="paper-btn" data-paper="grid" title="Grid">
+                <div class="paper-preview grid"></div>
+                <span>Grid</span>
+              </button>
+            </div>
+          </div>
 
           <span class="toolbar-divider"></span>
 
-          <!-- Colors -->
-          <button class="tool-btn" data-color="#1f2933" title="Black" style="--swatch:#1f2933"></button>
-          <button class="tool-btn" data-color="#c44536" title="Red" style="--swatch:#c44536"></button>
-          <button class="tool-btn" data-color="#3f5f9a" title="Blue" style="--swatch:#3f5f9a"></button>
-          <button class="tool-btn" data-color="#4f8f62" title="Green" style="--swatch:#4f8f62"></button>
-          <button class="tool-btn" data-color="#e0b145" title="Yellow" style="--swatch:#e0b145"></button>
-          <button class="tool-btn" data-color="#9b59b6" title="Purple" style="--swatch:#9b59b6"></button>
-          <button class="tool-btn" data-color="#e67e22" title="Orange" style="--swatch:#e67e22"></button>
+          <!-- Color picker trigger -->
+          <div class="tool-group" id="colorGroup">
+            <button class="tool-btn tool-group-trigger color-trigger" id="colorBtn" title="Color">
+              <span id="colorSwatch" class="color-swatch-preview"></span>
+            </button>
+            <div class="tool-popover color-popover" id="colorPopover">
+              <div class="cp-palette" id="cpPalette"></div>
+              <div class="cp-row">
+                <label class="cp-hex-label">
+                  <span>#</span>
+                  <input id="cpHexInput" class="cp-hex" maxlength="6" placeholder="1f2933" spellcheck="false">
+                </label>
+                <span id="cpHexPreview" class="cp-hex-preview"></span>
+              </div>
+            </div>
+          </div>
 
           <span class="toolbar-divider"></span>
 
-          <!-- Size presets -->
+          <!-- Size presets + slider -->
           <button class="tool-btn size-preset active" data-size="2" title="Thin">
-            <span class="size-dot" style="--dot:2px"></span>
+            <span class="size-dot" style="--dot:3px"></span>
           </button>
           <button class="tool-btn size-preset" data-size="5" title="Medium">
-            <span class="size-dot" style="--dot:5px"></span>
+            <span class="size-dot" style="--dot:6px"></span>
           </button>
           <button class="tool-btn size-preset" data-size="10" title="Thick">
             <span class="size-dot" style="--dot:10px"></span>
@@ -133,7 +172,7 @@
 
           <span class="toolbar-divider"></span>
 
-          <!-- Actions -->
+          <!-- Undo / Redo / Clear -->
           <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 7a5 5 0 1 1 1.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="3,4 3,7 6,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
@@ -143,10 +182,22 @@
           <button id="clearPageBtn" class="tool-btn" title="Clear page">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5h10l-.8 8H3.8L3 5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/><line x1="1.5" y1="5" x2="14.5" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6 5V3.5h4V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
+
+          <span class="toolbar-divider"></span>
+
+          <!-- Zoom controls -->
+          <button id="zoomOutBtn" class="tool-btn" title="Zoom out (Ctrl+-)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <button id="zoomFitBtn" class="tool-btn zoom-label" title="Fit page / reset zoom (Ctrl+0)">
+            <span id="zoomPct">100%</span>
+          </button>
+          <button id="zoomInBtn" class="tool-btn" title="Zoom in (Ctrl++)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="7" y1="5" x2="7" y2="9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
         </div>
 
         <div class="editor-actions">
-          <button id="addPageBtn" class="ghost-button">+ Page</button>
           <button id="exportPdfBtn" class="primary-button">Export PDF</button>
         </div>
       </header>
@@ -170,6 +221,7 @@
     </section>
   </div>
 
+  <!-- Overlays -->
   <div id="loadingOverlay" class="overlay hidden">
     <div class="loading-card">
       <div class="spinner"></div>
