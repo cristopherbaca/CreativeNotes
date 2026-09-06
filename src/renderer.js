@@ -9,12 +9,15 @@ const state = {
   pageId: null,
   tool: 'pen',
   color: '#1f2933',
-  size: 3,
+  size: 2,
   currentStroke: null,
+  shapeStart: null,
   undo: [],
   redo: [],
   saveTimer: null,
-  modal: null
+  modal: null,
+  sidebarOpen: true,
+  theme: localStorage.getItem('theme') || 'light'
 };
 
 const $ = (id) => document.getElementById(id);
@@ -24,7 +27,62 @@ const notebookGrid = $('notebookGrid');
 const pagesScroller = $('pagesScroller');
 const pageThumbs = $('pageThumbs');
 const toast = $('toast');
+const pageRail = $('pageRail');
 
+/* ─── THEME ──────────────────────────────────────────────────────────── */
+function applyTheme(theme) {
+  state.theme = theme;
+  document.documentElement.dataset.theme = theme === 'dark' ? 'dark' : '';
+  localStorage.setItem('theme', theme);
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const btn = $('themeToggleBtn');
+  if (!btn) return;
+  if (state.theme === 'dark') {
+    // moon icon
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M12 8.5A5.5 5.5 0 0 1 5.5 2a5.5 5.5 0 1 0 6.5 6.5z" fill="currentColor"/>
+    </svg>`;
+  } else {
+    // sun icon
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="7" cy="7" r="3.2" fill="currentColor"/>
+      <line x1="7" y1="0.5" x2="7" y2="2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="7" y1="12" x2="7" y2="13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="0.5" y1="7" x2="2" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="12" y1="7" x2="13.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="2.4" y1="2.4" x2="3.4" y2="3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="10.6" y1="10.6" x2="11.6" y2="11.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="11.6" y1="2.4" x2="10.6" y2="3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="3.4" y1="10.6" x2="2.4" y2="11.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>`;
+  }
+  btn.title = state.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+}
+
+$('themeToggleBtn').addEventListener('click', () => {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ─── WINDOW CONTROLS ────────────────────────────────────────────────── */
+$('wcMinimize').addEventListener('click', () => window.mynotes.minimize());
+$('wcMaximize').addEventListener('click', () => window.mynotes.maximize());
+$('wcClose').addEventListener('click', () => window.mynotes.close());
+
+/* ─── SIDEBAR TOGGLE ─────────────────────────────────────────────────── */
+function setSidebar(open) {
+  state.sidebarOpen = open;
+  pageRail.classList.toggle('collapsed', !open);
+  if (state.view === 'notebook') {
+    setTimeout(() => renderNotebook(), 220);
+  }
+}
+
+$('sidebarToggleBtn').addEventListener('click', () => setSidebar(!state.sidebarOpen));
+
+/* ─── UTILITY ────────────────────────────────────────────────────────── */
 function uid(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
 }
@@ -115,6 +173,9 @@ function relativePoint(event, canvas) {
   };
 }
 
+/* ─── DRAWING ────────────────────────────────────────────────────────── */
+const SHAPE_TOOLS = new Set(['line', 'rect', 'circle', 'arrow']);
+
 function drawStroke(ctx, stroke, width, height) {
   if (!stroke.points?.length) return;
   ctx.save();
@@ -128,21 +189,63 @@ function drawStroke(ctx, stroke, width, height) {
     ctx.strokeStyle = stroke.color;
     ctx.lineWidth = Math.max(1.2, stroke.size) * (width / PAGE_W);
   }
-  ctx.beginPath();
-  stroke.points.forEach((point, index) => {
-    const x = point.x * width;
-    const y = point.y * height;
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
+
+  if (stroke.tool === 'line') {
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    ctx.beginPath();
+    ctx.moveTo(p0.x * width, p0.y * height);
+    ctx.lineTo(p1.x * width, p1.y * height);
+    ctx.stroke();
+  } else if (stroke.tool === 'rect') {
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    ctx.beginPath();
+    ctx.strokeRect(
+      p0.x * width, p0.y * height,
+      (p1.x - p0.x) * width, (p1.y - p0.y) * height
+    );
+  } else if (stroke.tool === 'circle') {
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    const cx = ((p0.x + p1.x) / 2) * width;
+    const cy = ((p0.y + p1.y) / 2) * height;
+    const rx = Math.abs(p1.x - p0.x) / 2 * width;
+    const ry = Math.abs(p1.y - p0.y) / 2 * height;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (stroke.tool === 'arrow') {
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    const x0 = p0.x * width, y0 = p0.y * height;
+    const x1 = p1.x * width, y1 = p1.y * height;
+    const angle = Math.atan2(y1 - y0, x1 - x0);
+    const headLen = Math.max(12, Math.min(24, Math.hypot(x1 - x0, y1 - y0) * 0.18));
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x1 - headLen * Math.cos(angle - Math.PI / 6), y1 - headLen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - headLen * Math.cos(angle + Math.PI / 6), y1 - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    stroke.points.forEach((point, index) => {
+      const x = point.x * width;
+      const y = point.y * height;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
 function renderCanvas(canvas, page, thumb = false) {
   const ratio = thumb ? 1 : (window.devicePixelRatio || 1);
-  const width = canvas.clientWidth || (thumb ? 112 : PAGE_W);
-  const height = canvas.clientHeight || (thumb ? 148 : PAGE_H);
+  const width = canvas.clientWidth || (thumb ? 116 : PAGE_W);
+  const height = canvas.clientHeight || (thumb ? 154 : PAGE_H);
   canvas.width = width * ratio;
   canvas.height = height * ratio;
   const ctx = canvas.getContext('2d');
@@ -223,9 +326,10 @@ function renderThumbs() {
 
 function bindPageCanvas(canvas, page) {
   canvas.addEventListener('pointerdown', (event) => {
-    if (state.tool === 'text') return;
+    if (state.tool === 'text' || state.tool === 'select') return;
     canvas.setPointerCapture(event.pointerId);
     const point = relativePoint(event, canvas);
+
     if (state.tool === 'eraser') {
       eraseAt(page, point);
       renderCanvas(canvas, page);
@@ -233,6 +337,7 @@ function bindPageCanvas(canvas, page) {
       persist();
       return;
     }
+
     state.currentStroke = {
       id: uid('stroke'),
       tool: state.tool,
@@ -247,7 +352,13 @@ function bindPageCanvas(canvas, page) {
 
   canvas.addEventListener('pointermove', (event) => {
     if (!state.currentStroke || state.currentStroke !== page.strokes.at(-1)) return;
-    state.currentStroke.points.push(relativePoint(event, canvas));
+    const point = relativePoint(event, canvas);
+    if (SHAPE_TOOLS.has(state.tool)) {
+      // for shapes keep only start + current end
+      state.currentStroke.points = [state.currentStroke.points[0], point];
+    } else {
+      state.currentStroke.points.push(point);
+    }
     renderCanvas(canvas, page);
   });
 
@@ -316,9 +427,13 @@ function updatePageToolMode() {
     button.classList.toggle('active', button.dataset.tool === state.tool);
   });
   document.querySelectorAll('.tool-btn[data-color]').forEach((button) => {
-    button.style.setProperty('--swatch', button.dataset.color);
     button.classList.toggle('active', button.dataset.color === state.color);
   });
+  document.querySelectorAll('.tool-btn.size-preset').forEach((button) => {
+    button.classList.toggle('active', Number(button.dataset.size) === Number(state.size));
+  });
+  const slider = $('strokeSize');
+  if (slider) slider.value = state.size;
 }
 
 function renderNotebook() {
@@ -351,9 +466,10 @@ function paintPreview(canvas, item) {
   canvas.style.height = `${height}px`;
   const ctx = canvas.getContext('2d');
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  ctx.fillStyle = '#faf9f8';
+  const isDark = state.theme === 'dark';
+  ctx.fillStyle = isDark ? '#222120' : '#faf9f8';
   ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = '#efece8';
+  ctx.strokeStyle = isDark ? '#333230' : '#efece8';
   for (let y = 18; y < height; y += 14) {
     ctx.beginPath();
     ctx.moveTo(12, y);
@@ -363,7 +479,7 @@ function paintPreview(canvas, item) {
   const page = item.pages[0];
   if (!page) return;
   (page.strokes || []).forEach((stroke) => drawStroke(ctx, stroke, width, height));
-  ctx.fillStyle = '#323130';
+  ctx.fillStyle = isDark ? '#c8c6c3' : '#323130';
   ctx.font = '12px Segoe UI, system-ui, sans-serif';
   (page.texts || []).slice(0, 3).forEach((text, index) => {
     if (text.value) ctx.fillText(text.value.slice(0, 28), 16, 36 + index * 18);
@@ -516,6 +632,7 @@ function closeModal() {
   state.modal = null;
 }
 
+/* ─── EVENT LISTENERS ────────────────────────────────────────────────── */
 $('colorPicker').addEventListener('click', (event) => {
   const color = event.target.dataset.color;
   if (!color) return;
@@ -580,6 +697,7 @@ $('redoBtn').addEventListener('click', redo);
 $('clearPageBtn').addEventListener('click', () => {
   const page = currentPage();
   page.strokes = [];
+  page.texts = [];
   persist();
   renderNotebook();
 });
@@ -590,14 +708,24 @@ $('exportPdfBtn').addEventListener('click', async () => {
 });
 $('strokeSize').addEventListener('input', (event) => {
   state.size = Number(event.target.value);
+  // deactivate size presets when manually adjusted
+  document.querySelectorAll('.tool-btn.size-preset').forEach((b) => b.classList.remove('active'));
 });
+
 $('toolbar').addEventListener('click', (event) => {
-  const tool = event.target.closest('[data-tool]')?.dataset.tool;
-  const color = event.target.closest('[data-color]')?.dataset.color;
+  const btn = event.target.closest('[data-tool], [data-color], [data-size]');
+  if (!btn) return;
+  const tool = btn.dataset.tool;
+  const color = btn.dataset.color;
+  const size = btn.dataset.size;
   if (tool) state.tool = tool;
   if (color) {
     state.color = color;
     if (state.tool === 'eraser') state.tool = 'pen';
+  }
+  if (size !== undefined) {
+    state.size = Number(size);
+    $('strokeSize').value = state.size;
   }
   updatePageToolMode();
 });
@@ -612,6 +740,9 @@ document.addEventListener('click', (event) => {
 });
 
 window.addEventListener('keydown', (event) => {
+  const tag = document.activeElement?.tagName?.toLowerCase();
+  const editing = tag === 'input' || tag === 'textarea' || document.activeElement?.isContentEditable;
+
   if (event.key === 'Escape') {
     closeMenu();
     closeModal();
@@ -625,9 +756,18 @@ window.addEventListener('keydown', (event) => {
     event.preventDefault();
     event.shiftKey ? redo() : undo();
   }
-  if (state.view === 'notebook' && document.activeElement === document.body) {
+
+  // Tool shortcuts (only when not editing text)
+  if (state.view === 'notebook' && !editing && !event.ctrlKey && !event.metaKey) {
+    const shortcuts = { p: 'pen', h: 'highlighter', e: 'eraser', t: 'text', s: 'select', l: 'line', r: 'rect', o: 'circle' };
+    if (shortcuts[event.key.toLowerCase()]) {
+      state.tool = shortcuts[event.key.toLowerCase()];
+      updatePageToolMode();
+    }
     if (event.key === 'ArrowDown' || event.key === 'PageDown') $('nextPageBtn').click();
     if (event.key === 'ArrowUp' || event.key === 'PageUp') $('prevPageBtn').click();
+    // sidebar toggle
+    if (event.key === '\\') setSidebar(!state.sidebarOpen);
   }
 });
 
@@ -636,6 +776,7 @@ window.addEventListener('resize', () => {
 });
 
 async function boot() {
+  applyTheme(state.theme);
   state.data = await window.mynotes.load();
   if (!state.data.notebooks?.length) state.data.notebooks = [blankNotebook('My first notebook', COVER_COLORS[0])];
   setView('library');

@@ -55,6 +55,8 @@ function createWindow() {
     height: 940,
     minWidth: 1100,
     minHeight: 720,
+    frame: false,
+    titleBarStyle: 'hidden',
     backgroundColor: '#f3f2f1',
     title: 'MyNotes',
     webPreferences: {
@@ -69,6 +71,13 @@ function createWindow() {
 
 ipcMain.handle('data:load', () => readData());
 ipcMain.handle('data:save', (_event, data) => writeData(data));
+
+ipcMain.on('window:minimize', () => mainWindow?.minimize());
+ipcMain.on('window:maximize', () => {
+  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
+  else mainWindow?.maximize();
+});
+ipcMain.on('window:close', () => mainWindow?.close());
 
 ipcMain.handle('notebook:export-pdf', async (_event, notebook) => {
   const printable = new BrowserWindow({
