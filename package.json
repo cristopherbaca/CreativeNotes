@@ -1,0 +1,13 @@
+{
+  "name": "mynotes",
+  "version": "1.0.0",
+  "description": "A Goodnotes-inspired desktop notebook app.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  }
+}

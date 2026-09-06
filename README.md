@@ -1,6 +1,6 @@
 # MyNotes
 
-A small Goodnotes-inspired desktop notebook app built with Electron.
+A Goodnotes-inspired desktop notebook app built with Electron.
 
 ## Run
 
@@ -9,13 +9,12 @@ npm install
 npm start
 ```
 
-## Features
+## What you can do
 
-- Create and switch between notebooks
-- Add, rename, and delete pages
-- Write text on ruled paper
-- Draw with the pen layer
+- Browse notebooks on a Documents library
+- Create, rename, and delete notebooks
+- Open a notebook and load its pages
+- Write and draw with a toolbar (pen, highlighter, eraser, text)
+- Add pages and move through them with smooth scrolling
 - Autosave locally in Electron's application data folder
-- Export the current notebook as a PDF
-
-The app uses a vanilla HTML/CSS/JavaScript renderer and a secure Electron preload bridge.
+- Export a notebook as a PDF

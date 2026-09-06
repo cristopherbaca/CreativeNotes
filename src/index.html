@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyNotes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <section id="libraryView" class="library-view">
+      <header class="app-bar">
+        <span class="app-bar-title">MyNotes</span>
+        <input id="searchNotebooks" class="app-search" type="search" placeholder="Search">
+      </header>
+      <div class="library-body">
+        <div id="notebookGrid" class="notebook-grid"></div>
+        <button type="button" id="allNotebooksLink" class="all-link">All my notebooks →</button>
+      </div>
+    </section>
+
+    <section id="notebookView" class="notebook-view hidden">
+      <header class="editor-header">
+        <button id="backToLibrary" class="ghost-button">← Documents</button>
+        <button id="notebookTitleBtn" class="notebook-title-btn"></button>
+        <div class="toolbar" id="toolbar">
+          <button class="tool-btn active" data-tool="pen" title="Pen">✎</button>
+          <button class="tool-btn" data-tool="highlighter" title="Highlighter">▮</button>
+          <button class="tool-btn" data-tool="eraser" title="Eraser">⌫</button>
+          <button class="tool-btn" data-tool="text" title="Text">T</button>
+          <span class="toolbar-divider"></span>
+          <button class="tool-btn" data-color="#1f2933" title="Black"></button>
+          <button class="tool-btn" data-color="#c44536" title="Red"></button>
+          <button class="tool-btn" data-color="#3f5f9a" title="Blue"></button>
+          <button class="tool-btn" data-color="#4f8f62" title="Green"></button>
+          <button class="tool-btn" data-color="#e0b145" title="Yellow"></button>
+          <span class="toolbar-divider"></span>
+          <input id="strokeSize" class="size-slider" type="range" min="1" max="18" value="3">
+          <button id="undoBtn" class="tool-btn" title="Undo">↶</button>
+          <button id="redoBtn" class="tool-btn" title="Redo">↷</button>
+          <button id="clearPageBtn" class="tool-btn" title="Clear page">✕</button>
+        </div>
+        <div class="editor-actions">
+          <button id="addPageBtn" class="ghost-button">+ Page</button>
+          <button id="exportPdfBtn" class="primary-button">Export PDF</button>
+        </div>
+      </header>
+
+      <div class="editor-body">
+        <aside class="page-rail">
+          <div class="rail-label">Pages</div>
+          <div id="pageThumbs" class="page-thumbs"></div>
+          <button id="addPageRailBtn" class="add-page-rail">+ New page</button>
+        </aside>
+        <div id="pagesScroller" class="pages-scroller"></div>
+      </div>
+
+      <footer class="editor-footer">
+        <span id="pageIndicator">Page 1 of 1</span>
+        <div class="nav-buttons">
+          <button id="prevPageBtn" class="ghost-button">Previous</button>
+          <button id="nextPageBtn" class="ghost-button">Next</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="loadingOverlay" class="overlay hidden">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p id="loadingText">Opening notebook…</p>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="overlay hidden">
+    <form id="modalForm" class="modal">
+      <h2 id="modalTitle">Notebook</h2>
+      <label>
+        Name
+        <input id="modalName" type="text" maxlength="80" required>
+      </label>
+      <div id="colorPicker" class="color-picker"></div>
+      <div class="modal-actions">
+        <button type="button" id="modalCancel" class="ghost-button">Cancel</button>
+        <button type="submit" class="primary-button">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>
