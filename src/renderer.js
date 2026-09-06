@@ -330,6 +330,46 @@ function renderNotebook() {
   requestAnimationFrame(() => goToPage(state.pageId, false));
 }
 
+function formatEdited(timestamp) {
+  const date = new Date(timestamp || Date.now());
+  const time = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  if (date.toDateString() === today.toDateString()) return `Edited: Today, ${time}`;
+  if (date.toDateString() === yesterday.toDateString()) return `Edited: Yesterday, ${time}`;
+  return `Edited: ${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`;
+}
+
+function paintPreview(canvas, item) {
+  const width = 236;
+  const height = 124;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  ctx.fillStyle = '#faf9f8';
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = '#efece8';
+  for (let y = 18; y < height; y += 14) {
+    ctx.beginPath();
+    ctx.moveTo(12, y);
+    ctx.lineTo(width - 12, y);
+    ctx.stroke();
+  }
+  const page = item.pages[0];
+  if (!page) return;
+  (page.strokes || []).forEach((stroke) => drawStroke(ctx, stroke, width, height));
+  ctx.fillStyle = '#323130';
+  ctx.font = '12px Segoe UI, system-ui, sans-serif';
+  (page.texts || []).slice(0, 3).forEach((text, index) => {
+    if (text.value) ctx.fillText(text.value.slice(0, 28), 16, 36 + index * 18);
+  });
+}
+
 function renderLibrary() {
   const query = ($('searchNotebooks').value || '').trim().toLowerCase();
   const notebooks = state.data.notebooks
@@ -338,29 +378,31 @@ function renderLibrary() {
     .filter((item) => item.name.toLowerCase().includes(query));
 
   notebookGrid.innerHTML = '';
-  notebooks.forEach((item) => {
-    const card = document.createElement('div');
-    card.className = 'notebook-card';
-    card.innerHTML = `
-      <button class="cover-open" data-open="${item.id}">
-        <div class="cover" style="background:${item.color}">
-          <div class="cover-title">${escapeHtml(item.name)}</div>
-        </div>
-      </button>
-      <button class="card-menu" data-menu="${item.id}" title="Notebook options">⋯</button>
-      <div class="notebook-meta">
-        <span>${item.pages.length} ${item.pages.length === 1 ? 'page' : 'pages'}</span>
-        <span>${new Date(item.updatedAt || Date.now()).toLocaleDateString()}</span>
-      </div>
-    `;
-    notebookGrid.appendChild(card);
-  });
 
   const create = document.createElement('button');
   create.className = 'create-card';
-  create.innerHTML = `<div class="cover-plus">+</div><div class="notebook-meta"><span>Create notebook</span></div>`;
+  create.innerHTML = `<div class="create-plus">+</div><span>New notebook</span>`;
   create.addEventListener('click', () => openModal({ mode: 'create' }));
   notebookGrid.appendChild(create);
+
+  notebooks.forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'board-card';
+    card.innerHTML = `
+      <button class="preview-open" data-open="${item.id}">
+        <canvas class="preview"></canvas>
+      </button>
+      <div class="board-info">
+        <div class="board-copy">
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${formatEdited(item.updatedAt)}</small>
+        </div>
+        <button class="card-menu" data-menu="${item.id}" title="Notebook options">⋯</button>
+      </div>
+    `;
+    notebookGrid.appendChild(card);
+    paintPreview(card.querySelector('canvas'), item);
+  });
 
   notebookGrid.querySelectorAll('[data-open]').forEach((button) => {
     button.addEventListener('click', () => openNotebook(button.dataset.open));
@@ -510,8 +552,11 @@ $('modalOverlay').addEventListener('click', (event) => {
   if (event.target === $('modalOverlay')) closeModal();
 });
 
-$('newNotebookBtn').addEventListener('click', () => openModal({ mode: 'create' }));
 $('searchNotebooks').addEventListener('input', renderLibrary);
+$('allNotebooksLink').addEventListener('click', () => {
+  $('searchNotebooks').value = '';
+  renderLibrary();
+});
 $('backToLibrary').addEventListener('click', () => {
   persist(true);
   setView('library');
